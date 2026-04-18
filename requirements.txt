@@ -1,0 +1,10 @@
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+python-multipart>=0.0.6
+PyPDF2>=3.0.0
+python-docx>=1.1.0
+gtts>=2.5.0
+pyttsx3>=2.90
+httpx>=0.25.0
+edge-tts>=7.0.0
+mistune>=3.0.0

@@ -1,0 +1,45 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Syntax check
+        run: |
+          python -m py_compile app/main.py app/api/routes.py app/services/tts_service.py app/services/file_parser.py app/engines/edge_tts_engine.py app/engines/google_tts.py app/engines/pyttsx3_engine.py
+
+      - name: Run health check
+        run: |
+          pip install httpx
+          python -c "
+import httpx
+import subprocess
+import time
+import sys
+
+# Start server in background
+proc = subprocess.Popen(['uvicorn', 'app.main:app', '--port', '8000'])
+
+# Wait for server to start
+time.sleep(3)
+
+try:
+    response = httpx.get('http://127.0.0.1:8000/api/health', timeout=5)
+    assert response.status_code == 200
+    print('Health check passed')
+finally:
+    proc.terminate()
+    sys.exit(proc.wait())
+"
