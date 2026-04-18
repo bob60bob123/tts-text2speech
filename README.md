@@ -5,13 +5,18 @@
 ## 快速开始
 
 ```bash
+# 克隆项目
+git clone https://github.com/bob60bob123/tts-text2speech.git
+cd tts-text2speech
+
 # 安装依赖
 pip install -r requirements.txt
 
 # 启动服务器
-双击一键运行---start.bat
+双击 start.bat 或运行:
+uvicorn app.main:app --host 0.0.0.0 --port 8000
 
-# 打开浏览器访问
+# 浏览器打开
 # http://127.0.0.1:8000
 ```
 
@@ -39,40 +44,58 @@ pip install -r requirements.txt
 | en-GB-SoniaNeural    | Sonia (女声-英式) |
 | en-GB-RyanNeural     | Ryan (男声-英式)  |
 
-## 技术栈
-
-- **前端**: Vanilla JS/CSS (无框架)
-- **后端**: FastAPI + Python
-- **TTS 引擎**: Microsoft Edge TTS (默认), Google TTS, pyttsx3 (离线)
-- **文件解析**: PyPDF2, python-docx, mistune
-
 ## 项目结构
 
 ```
 app/
 ├── main.py              # FastAPI 入口
-├── api/routes.py        # API 路由
-├── services/            # 业务逻辑
+├── api/
+│   ├── routes.py        # API 路由 (tts, upload, audio, voices)
+│   └── schemas.py        # Pydantic 数据模型
+├── services/
 │   ├── tts_service.py   # TTS 引擎调度
-│   ├── file_parser.py   # 文件解析
+│   ├── file_parser.py   # 文件解析 (TXT/PDF/DOCX/MD)
 │   └── audio_storage.py # 音频存储
-└── engines/             # TTS 引擎实现
-    ├── edge_tts_engine.py
-    ├── google_tts.py
-    └── pyttsx3_engine.py
+└── engines/
+    ├── base.py          # 引擎抽象基类
+    ├── edge_tts_engine.py   # Edge TTS (默认)
+    ├── google_tts.py         # Google TTS
+    └── pyttsx3_engine.py     # pyttsx3 (离线)
 
 static/                  # 前端资源
 ├── index.html
 ├── css/styles.css
 └── js/
-    ├── audio-player.js  # 音频播放 + 进度条拖动
     ├── api-client.js
-    ├── file-handler.js
-    └── app.js
+    ├── app.js
+    ├── audio-player.js  # 音频播放 + 进度条拖动
+    └── file-handler.js
 ```
+
+## 技术栈
+
+- **前端**: Vanilla JS/CSS (无框架)
+- **后端**: FastAPI + Python 3.11+
+- **TTS 引擎**: edge-tts, gtts, pyttsx3
+- **文件解析**: PyPDF2, python-docx, mistune
 
 ## 引擎优先级
 
 1. **Edge TTS** - 免费、高质量、微软服务器
 2. **Google TTS** - 备选方案
 3. **pyttsx3** - 完全离线（仅 Windows）
+
+## 依赖
+
+```
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+python-multipart>=0.0.6
+PyPDF2>=3.0.0
+python-docx>=1.1.0
+gtts>=2.5.0
+pyttsx3>=2.90
+httpx>=0.25.0
+edge-tts>=7.0.0
+mistune>=3.0.0
+```
